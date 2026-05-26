@@ -6,6 +6,8 @@
  * 
  * RAILWAY DEPLOYMENT: Uses environment variables when available
  * Falls back to localhost configuration for local development (XAMPP)
+ * 
+ * AUTO-SETUP: Automatically creates tables if they don't exist
  */
 
 // Database configuration with Railway environment variables support
@@ -55,6 +57,47 @@ try {
     // Set character encoding to UTF-8 for proper handling of special characters
     if (!mysqli_set_charset($conn, "utf8")) {
         die("Error setting charset: " . mysqli_error($conn));
+    }
+    
+    // AUTO-SETUP: Check if tables exist, create them if they don't
+    $tables_exist = true;
+    
+    // Check if Users table exists
+    $result = @mysqli_query($conn, "SHOW TABLES LIKE 'Users'");
+    if (!$result || mysqli_num_rows($result) == 0) {
+        $tables_exist = false;
+    }
+    
+    // Check if Tasks table exists
+    $result = @mysqli_query($conn, "SHOW TABLES LIKE 'Tasks'");
+    if (!$result || mysqli_num_rows($result) == 0) {
+        $tables_exist = false;
+    }
+    
+    // If tables don't exist, create them automatically
+    if (!$tables_exist) {
+        // Create Users table
+        $sql = "CREATE TABLE IF NOT EXISTS Users (
+            UserID INT AUTO_INCREMENT PRIMARY KEY,
+            Username VARCHAR(50) UNIQUE NOT NULL,
+            uPassword VARCHAR(255) NOT NULL,
+            Email VARCHAR(100) UNIQUE NOT NULL,
+            CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )";
+        @mysqli_query($conn, $sql);
+        
+        // Create Tasks table
+        $sql = "CREATE TABLE IF NOT EXISTS Tasks (
+            TaskID INT AUTO_INCREMENT PRIMARY KEY,
+            UserID INT NOT NULL,
+            TaskTitle VARCHAR(200) NOT NULL,
+            TaskDescription TEXT,
+            TaskStatus ENUM('Pending', 'Complete') DEFAULT 'Pending',
+            CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+        )";
+        @mysqli_query($conn, $sql);
     }
     
 } catch (Exception $e) {
