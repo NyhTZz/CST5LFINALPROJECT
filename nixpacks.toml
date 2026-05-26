@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["php84", "php84Extensions.mysqli"]
+
+[phases.install]
+cmds = ["echo 'Installing dependencies...'"]
+
+[start]
+cmd = "php -S 0.0.0.0:$PORT -t ."
