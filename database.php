@@ -14,9 +14,16 @@
 // Railway provides these environment variables automatically when MySQL is added
 $host = $_ENV['MYSQLHOST'] ?? getenv('MYSQLHOST') ?? 'localhost';
 $port = $_ENV['MYSQLPORT'] ?? getenv('MYSQLPORT') ?? '3306';
-$dbname = $_ENV['MYSQLDATABASE'] ?? getenv('MYSQLDATABASE') ?? 'trackersystemdb';
+$dbname = $_ENV['MYSQLDATABASE'] ?? getenv('MYSQLDATABASE') ?? 'railway'; // Default to 'railway' for Railway
 $user = $_ENV['MYSQLUSER'] ?? getenv('MYSQLUSER') ?? 'root';
 $pass = $_ENV['MYSQLPASSWORD'] ?? getenv('MYSQLPASSWORD') ?? $_ENV['MYSQLROOT_PASSWORD'] ?? getenv('MYSQLROOT_PASSWORD') ?? '';
+
+// Validate database name is not empty
+if (empty($dbname)) {
+    die("Database configuration error: MYSQLDATABASE is not set.<br>" .
+        "Please check your Railway environment variables.<br>" .
+        "Expected: MYSQLDATABASE = railway (or your database name)");
+}
 
 // Check if mysqli extension is loaded
 if (!extension_loaded('mysqli')) {
