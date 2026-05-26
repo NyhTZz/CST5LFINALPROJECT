@@ -1,0 +1,89 @@
+================================================================================
+                    TASK TRACKING SYSTEM - DOCUMENTATION
+================================================================================
+
+================================================================================
+1. SYSTEM OVERVIEW
+================================================================================
+
+The Task Tracking System is a web-based application built with PHP and MySQL
+deployed on Railway
+
+MAIN FEATURES:
+- User Registration with validation
+- Secure Login/Logout with sessions
+- Dashboard to view all user tasks
+- Add new tasks
+- Edit existing tasks
+- Delete tasks with confirmation
+- Toggle task status (Pending/Complete)
+
+
+================================================================================
+2. DATABASE STRUCTURE
+================================================================================
+
+DATABASE NAME: trackersystemdb
+
+TABLE 1: Users
+--------------
+UserID          INT             Primary Key, Auto Increment
+Username        VARCHAR(50)     Unique, Not Null
+uPassword       VARCHAR(255)    Not Null (stores hashed password)
+Email           VARCHAR(100)    Unique, Not Null
+CreatedAt       TIMESTAMP       Default: Current Timestamp
+
+TABLE 2: Tasks
+--------------
+TaskID          INT             Primary Key, Auto Increment
+UserID          INT             Foreign Key -> Users(UserID), Not Null
+TaskTitle       VARCHAR(200)    Not Null
+TaskDescription TEXT            Nullable
+TaskStatus      ENUM            Values: 'Pending', 'Complete', Default: 'Pending'
+CreatedAt       TIMESTAMP       Default: Current Timestamp
+UpdatedAt       TIMESTAMP       Auto-update on modification
+
+RELATIONSHIPS:
+- One User can have Many Tasks (1:N relationship)
+- Tasks.UserID references Users.UserID
+- ON DELETE CASCADE: When a user is deleted, all their tasks are deleted
+(ERD on images might be outdated, it was used as a guide to how the logic works for the code)
+================================================================================
+3. FILE STRUCTURE
+================================================================================
+
+According to hierarchy
+Index = Main start of the website(auto redirects to login page)
+    Login = Main entry point for user login, directs to dashboard if account exists, goes to register if not.
+        Register = user registers if there is no account yet, after register goes back to Login.
+      
+      
+    Dashboard = Main Page for the utilities
+        Add Task = adds task seen in dashboard
+        Edit Task = edits task, result seen in dashboard
+        Delete Task = removes task
+        Toggle Task(Pending/Complete) = toggles a task and tags them either pending or complete
+    
+    Logout = logs out the user from the website and redirects back to login page.
+
+Miscellaneous:
+CSS/HTML = Present in the main pages. Design isn't the strong suit so the CSS is inside the html code and not separated by a file.
+
+Database = the database being used by the website. Used mysqli as the extension connector.
+
+Procfile - does PHP's built in web server for Railway's assigned port. Asked Claude because I had an error integrating the website.
+Keeps on not detecting anything
+
+setup_database - old setup_database, it was mainly used to be run when there is no database present yet; supposed to be a one time run,
+decided to strip the code unto database.php(the auto creation for SQL statements) for simplicity and easier access and more practical.
+
+test_railway_connection - it just tests the connection of RailWay SQL, since I had issues, it basically attemps database connection, 
+shows which format railway is using, basically troubleshooter.
+
+test_connection - this is an old file, it was used before I asked AI for help in integrating the codes to the website.
+
+
+WEBSITE
+https://cst5lfinalproject-production.up.railway.app/
+https://cst5lfinalproject-production.up.railway.app/
+https://cst5lfinalproject-production.up.railway.app/
