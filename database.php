@@ -28,23 +28,39 @@ if (function_exists('mysqli_report')) {
 
 // Try to establish database connection
 try {
-    // Connect to MySQL database using provided credentials
-    // Include port parameter for Railway compatibility
-    // Returns connection object stored in $conn variable
-    $conn = @mysqli_connect($host, $user, $pass, $dbname, $port);
+    // For Railway: Use TCP connection with explicit port
+    // For XAMPP: Use standard connection
+    
+    // Initialize connection variable
+    $conn = false;
+    
+    // Attempt connection with error suppression to handle it gracefully
+    $conn = @mysqli_connect($host, $user, $pass, $dbname, (int)$port);
     
     // Check if connection was successful
     if (!$conn) {
-        // If connection fails, stop execution and show error
-        die("Connection failed: " . mysqli_connect_error() . "<br>Please run <a href='setup_database.php'>setup_database.php</a> first!");
+        $error_msg = mysqli_connect_error();
+        $error_no = mysqli_connect_errno();
+        
+        // Provide helpful error message
+        die("Database connection failed!<br>" . 
+            "Error: " . htmlspecialchars($error_msg) . "<br>" . 
+            "Error Code: " . $error_no . "<br>" .
+            "Host: " . htmlspecialchars($host) . "<br>" .
+            "Port: " . htmlspecialchars($port) . "<br>" .
+            "Database: " . htmlspecialchars($dbname) . "<br>" .
+            "<br>Please ensure MySQL service is running in Railway and environment variables are set correctly.");
     }
     
     // Set character encoding to UTF-8 for proper handling of special characters
-    mysqli_set_charset($conn, "utf8");
+    if (!mysqli_set_charset($conn, "utf8")) {
+        die("Error setting charset: " . mysqli_error($conn));
+    }
     
 } catch (Exception $e) {
     // Catch any connection errors and display helpful message
-    die("Database connection error: " . $e->getMessage() . "<br>Please run <a href='setup_database.php'>setup_database.php</a> first!");
+    die("Database connection error: " . htmlspecialchars($e->getMessage()) . 
+        "<br>Please ensure MySQL service is running in Railway.");
 }
 
 // Connection successful - $conn variable now available for database queries
