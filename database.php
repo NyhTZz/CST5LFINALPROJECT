@@ -16,16 +16,22 @@ $dbname = $_ENV['MYSQLDATABASE'] ?? getenv('MYSQLDATABASE') ?? 'trackersystemdb'
 $user = $_ENV['MYSQLUSER'] ?? getenv('MYSQLUSER') ?? 'root';
 $pass = $_ENV['MYSQLPASSWORD'] ?? getenv('MYSQLPASSWORD') ?? $_ENV['MYSQLROOT_PASSWORD'] ?? getenv('MYSQLROOT_PASSWORD') ?? '';
 
-// Enable detailed error reporting for debugging
-// Shows SQL errors and connection issues during development
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+// Check if mysqli extension is loaded
+if (!extension_loaded('mysqli')) {
+    die("Error: mysqli extension is not loaded. Please enable it in your PHP configuration.");
+}
+
+// Enable detailed error reporting for debugging (only if mysqli_report exists)
+if (function_exists('mysqli_report')) {
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+}
 
 // Try to establish database connection
 try {
     // Connect to MySQL database using provided credentials
     // Include port parameter for Railway compatibility
     // Returns connection object stored in $conn variable
-    $conn = mysqli_connect($host, $user, $pass, $dbname, $port);
+    $conn = @mysqli_connect($host, $user, $pass, $dbname, $port);
     
     // Check if connection was successful
     if (!$conn) {
@@ -36,7 +42,7 @@ try {
     // Set character encoding to UTF-8 for proper handling of special characters
     mysqli_set_charset($conn, "utf8");
     
-} catch (mysqli_sql_exception $e) {
+} catch (Exception $e) {
     // Catch any connection errors and display helpful message
     die("Database connection error: " . $e->getMessage() . "<br>Please run <a href='setup_database.php'>setup_database.php</a> first!");
 }
